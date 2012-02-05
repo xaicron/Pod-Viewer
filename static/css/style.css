@@ -67,7 +67,8 @@ p {
 p code {
     font-size: 120%;
     font-style: italic;
-    color: #066;
+    color: crimson;
+    background-color: #fdd;
 }
 
 ul {
@@ -111,9 +112,4 @@ div#header {
 div#header p {
     padding: 0;
     margin-left: 0.3em;
-}
-
-p code {
-    color: crimson;
-    background-color: #fdd;
 }

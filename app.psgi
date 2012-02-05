@@ -30,12 +30,13 @@ my $header = << 'EOH';
   <p><?= $module ?></p>
 </div>
 
-<div id="content">
+<div id="navi">
+    [ <a href="/<?= $module ?>">Document</a> ]
+    [ <a href="/src/<?= $module ?>">Source</a> ]
+    [ <a href="/raw/<?= $module ?>">Raw</a> ]
+</div>
 
-<dt>
-    [ <a href="/src/<?= $module ?>">View Source</a> ]
-    [ <a href="/raw/<?= $module ?>">View Raw</a> ]
-</dt>
+<div id="content">
 
 EOH
 

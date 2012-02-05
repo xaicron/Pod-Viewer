@@ -2,7 +2,6 @@ use strict;
 use warnings;
 use Pod::Simple::XHTML;
 use Pod::Simple::Search;
-use HTML::Filter::Callbacks;
 use Plack::Builder;
 use Plack::Request;
 use Text::MicroTemplate qw(build_mt);
@@ -42,21 +41,19 @@ EOH
 
 my $footer = << 'EOF';
 </div>
+<script>
+(function () {
+    var tags = document.getElementsByTagName("pre");
+    for (var i = 0; i < tags.length; i++) {
+        tags[i].className = (tags[i].className ? " " : "") + "prettyprint lang-perl";
+    }
+})();
+</script>
 <script type="text/javascript" src="/static/js/prettify.js"></script>
 <script type="text/javascript">prettyPrint()</script>
 </body>
 </html>
 EOF
-
-my $filter = HTML::Filter::Callbacks->new;
-$filter->add_callbacks(
-    pre => +{
-        start => sub {
-            my ($tag, $c) = @_;
-            $tag->add_attr('class', 'prettyprint lang-perl');
-        },
-    },
-);
 
 sub _404() {
     [ 404, ['Content-Type' => 'text/plain'], ["not found"] ];
@@ -86,7 +83,7 @@ builder {
             my $p = Pod::Strip->new;
             $p->output_string(\my $content);
             $p->parse_string_document(scalar slurp $file_path);
-            $content = $filter->process(build_mt($header)->({ module => $module })->as_string.'<pre><code>'.$content.'</code></pre>'.$footer);
+            $content = build_mt($header)->({ module => $module })->as_string.'<pre><code>'.$content.'</code></pre>'.$footer;
             return [ 200, ['Content-Type', 'text/html', 'Content-Length' => length($content)], [$content] ];
         }
         elsif ($path =~ m{^/raw}) {
@@ -102,7 +99,6 @@ builder {
         $pod->index(1);
         $pod->parse_file($file_path);
         if ($pod->content_seen) {
-            $content = $filter->process($content);
             return [ 200, ['Content-Type' => 'text/html', 'Content-Length' => length($content)], [$content] ];
         }
         return _404();

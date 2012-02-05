@@ -93,7 +93,7 @@ pre {
 }
 
 pre code {
-    font-family: 'Osaka-mono' monospace;
+    font-family: 'Osaka-mono' 'Gothic' monospace;
     line-height: 1.3;
 }
 
@@ -111,4 +111,9 @@ div#header {
 div#header p {
     padding: 0;
     margin-left: 0.3em;
+}
+
+p code {
+    color: crimson;
+    background-color: #fdd;
 }

@@ -85,7 +85,8 @@ builder {
             my $p = Pod::Strip->new;
             $p->output_string(\my $content);
             $p->parse_string_document(scalar slurp $file_path);
-            return [ 200, ['Content-Type', 'text/plain', 'Content-Length' => length($content)], [$content] ];
+            $content = $filter->process(build_mt($header)->({ module => $module })->as_string.'<pre><code>'.$content.'</code></pre>'.$footer);
+            return [ 200, ['Content-Type', 'text/html', 'Content-Length' => length($content)], [$content] ];
         }
         elsif ($path =~ m{^/raw}) {
             my $content = slurp $file_path;

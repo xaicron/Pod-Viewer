@@ -8,6 +8,7 @@ use Text::MicroTemplate qw(build_mt);
 use URI::Escape qw(uri_escape);
 use Pod::Strip;
 use File::Slurp qw(slurp);
+use HTML::Entities qw(encode_entities);
 
 $|++;
 
@@ -59,6 +60,18 @@ sub _404() {
     [ 404, ['Content-Type' => 'text/plain'], ["not found"] ];
 }
 
+sub add_line_number {
+    my $content = shift;
+    my $lines = scalar( () = $content =~ /\n/g );
+    my $max = length($lines) + 1;
+    my $i = 0;
+    $content =~ s{^}{
+        $i++;
+        sprintf '<a href="#L%i" id="L%i">%*i</a>| ', $i, $i, $max, $i;
+    }mge;
+    return $content;
+}
+
 builder {
     enable 'Static', path => sub { m{^/favicon.ico$} || s{^/static}{} }, root => './static';
     sub {
@@ -83,7 +96,12 @@ builder {
             my $p = Pod::Strip->new;
             $p->output_string(\my $content);
             $p->parse_string_document(scalar slurp $file_path);
-            $content = build_mt($header)->({ module => $module })->as_string.'<pre><code>'.$content.'</code></pre>'.$footer;
+            $content = build_mt($header)->({ module => $module })->as_string
+                .'<pre><code>'
+                .add_line_number(encode_entities($content, q|<>"'|))
+                .'</code></pre>'
+                .$footer
+            ;
             return [ 200, ['Content-Type', 'text/html', 'Content-Length' => length($content)], [$content] ];
         }
         elsif ($path =~ m{^/raw}) {
